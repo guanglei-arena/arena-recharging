@@ -18,7 +18,7 @@ export default function HowItWorks() {
           <div className="step-icon-wrap">🛏️</div>
           <h3>Book a Sleep Pod</h3>
           <p>
-            Choose any available pod (Pod A, B, or C) and select your time slot on the calendar.
+            Choose any available pod (Monterey, Big Sur, or Half Moon Bay) and select your time slot on the calendar.
             The pod automatically reflects as <strong>Occupied</strong> during your booked window.
           </p>
         </div>
@@ -29,7 +29,7 @@ export default function HowItWorks() {
           <h3>Enter Sleep Mode</h3>
           <p>
             When your nap begins, enter the dedicated distraction-free <strong>Sleep Screen</strong>.
-            It provides a tranquil screen with only an <strong>“I am awake”</strong> or <strong>“Exit”</strong> button.
+            It provides a tranquil screen with an <strong>“I am awake”</strong> button.
           </p>
         </div>
 

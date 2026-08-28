@@ -23,9 +23,9 @@ export default function TopBar() {
         <NavLink to="/" end>
           Home
         </NavLink>
-        <NavLink to="/how-it-works">How It Works</NavLink>
         <NavLink to="/nap">Request a Nap</NavLink>
         <NavLink to="/wake">Wake a Teammate</NavLink>
+        <NavLink to="/how-it-works">How It Works</NavLink>
       </nav>
 
       <div className="topbar-right">

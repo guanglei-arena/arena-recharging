@@ -24,9 +24,9 @@ const users = [
 ];
 
 const pods = [
-  { id: 'pod-1', name: 'Pod A', location: 'Cabin 1', color: '#c45b3a', notes: '' },
-  { id: 'pod-2', name: 'Pod B', location: 'Cabin 1', color: '#4d7c57', notes: '' },
-  { id: 'pod-3', name: 'Pod C', location: 'Cabin 2', color: '#b87728', notes: '' },
+  { id: 'pod-1', name: 'Monterey', location: 'Cabin 1', color: '#c45b3a', notes: '' },
+  { id: 'pod-2', name: 'Big Sur', location: 'Cabin 1', color: '#4d7c57', notes: '' },
+  { id: 'pod-3', name: 'Half Moon Bay', location: 'Cabin 2', color: '#b87728', notes: '' },
 ];
 
 // Reservation status lifecycle:
@@ -89,7 +89,7 @@ const notifications = [
     userId: 'u-guanglei',
     type: 'wake-needed',
     title: 'Someone needs waking',
-    message: "anastasios's nap time is up in Pod B (Cabin 1). Please go wake them.",
+    message: "anastasios's nap time is up in Big Sur (Cabin 1). Please go wake them.",
     createdAt: at(-3 * MIN),
     read: false,
   },
