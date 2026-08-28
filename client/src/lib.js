@@ -1,10 +1,10 @@
 const PALETTE = [
-  ['#7c6ff0', '#4fb3d9'],
-  ['#f0917c', '#ef5a44'],
-  ['#57d5a6', '#2bb07e'],
-  ['#f4c36a', '#ef9f3c'],
-  ['#b9a8ff', '#7c6ff0'],
-  ['#ff8fb2', '#f05a8c'],
+  ['#6f7d3b', '#8a9650'],
+  ['#c96f4a', '#a9502f'],
+  ['#3f7d5c', '#6f8f7b'],
+  ['#dda95a', '#b9813f'],
+  ['#6f8f7b', '#3f7d5c'],
+  ['#8a6a3f', '#6f4a2f'],
 ];
 
 export function gradientFor(name = '') {

@@ -64,6 +64,28 @@ export default function Wake() {
     }
   }
 
+  async function handleRejectOffer() {
+    if (!currentUser || !isAssigned) return;
+    setBusy(true);
+    setNotice(null);
+    try {
+      const { assignedWaker: nextWaker } = await api.rejectWakerOffer(currentUser.id);
+      await refresh();
+      notify();
+      setNotice({
+        kind: 'amber',
+        icon: '🙅',
+        text: nextWaker
+          ? `You declined. ${nextWaker.name} is now on wake-up duty for this round.`
+          : 'You declined the offer, but there are no other volunteers to assign yet.',
+      });
+    } catch (err) {
+      setNotice({ kind: 'amber', icon: '⚠️', text: err.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div>
       <div className="hero" style={{ paddingTop: 24 }}>
@@ -121,6 +143,16 @@ export default function Wake() {
               <div className="empty">No waker assigned yet.</div>
             )}
           </div>
+          {isAssigned && (
+            <button
+              className="btn btn-coral mt"
+              style={{ width: '100%' }}
+              onClick={handleRejectOffer}
+              disabled={busy}
+            >
+              {busy ? <span className="spin" /> : '🙅 I can\'t do it — assign someone else'}
+            </button>
+          )}
           <button
             className="btn btn-primary mt"
             style={{ width: '100%' }}
@@ -214,7 +246,7 @@ export default function Wake() {
                 <div className="row-main">
                   <strong>
                     {r.name}
-                    <span className="tag danger" style={{ background: 'rgba(255,122,138,0.16)', color: 'var(--danger)' }}>
+                    <span className="tag danger" style={{ background: 'rgba(184,73,58,0.14)', color: 'var(--danger)' }}>
                       time up
                     </span>
                   </strong>
@@ -260,31 +292,6 @@ export default function Wake() {
         </div>
       )}
 
-      <div className="section-title">How waking works</div>
-      <div className="grid grid-3">
-        <div className="card">
-          <div className="action-icon" style={{ background: 'rgba(139,124,246,0.16)' }}>1</div>
-          <h3>Time runs out</h3>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            When a napper's planned end time passes, they appear here as “time up.”
-          </p>
-        </div>
-        <div className="card">
-          <div className="action-icon" style={{ background: 'rgba(244,195,106,0.16)' }}>2</div>
-          <h3>Buddy is notified</h3>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            The assigned waker gets a notification and taps <strong>Wake up</strong> to go get them.
-          </p>
-        </div>
-        <div className="card">
-          <div className="action-icon" style={{ background: 'rgba(87,213,166,0.16)' }}>3</div>
-          <h3>Or they self-exit</h3>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            If the napper taps <strong>Exit</strong> on their nap page, they're marked exited and no
-            one is sent to wake them.
-          </p>
-        </div>
-      </div>
     </div>
   );
 }

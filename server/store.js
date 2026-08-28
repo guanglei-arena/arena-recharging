@@ -1,4 +1,4 @@
-// In-memory data store for the Recharge Lounge.
+// In-memory data store for Arena Pause.
 // State is seeded with demo data and mutated via the functions below.
 // Repo is intentionally in-memory so the demo always starts fresh and lively.
 
@@ -17,17 +17,16 @@ function at(offsetMs) {
 // ---- Initial demo data -----------------------------------------------------
 
 const users = [
-  { id: 'u-alex', name: 'Alex Chen' },
-  { id: 'u-bri', name: 'Bri Patel' },
-  { id: 'u-carlos', name: 'Carlos Reyes' },
-  { id: 'u-dana', name: 'Dana Kim' },
-  { id: 'u-emma', name: 'Emma Wilson' },
+  { id: 'u-wei-lin', name: 'Wei-lin' },
+  { id: 'u-anastasios', name: 'anastasios' },
+  { id: 'u-guanglei', name: 'Guanglei' },
+  { id: 'u-tony', name: 'Tony' },
 ];
 
 const pods = [
-  { id: 'pod-1', name: 'Pod A', location: 'Cabin 1', color: '#7c6ff0', notes: '' },
-  { id: 'pod-2', name: 'Pod B', location: 'Cabin 1', color: '#4fb3d9', notes: '' },
-  { id: 'pod-3', name: 'Pod C', location: 'Cabin 2', color: '#f0917c', notes: '' },
+  { id: 'pod-1', name: 'Pod A', location: 'Cabin 1', color: '#6f7d3b', notes: '' },
+  { id: 'pod-2', name: 'Pod B', location: 'Cabin 1', color: '#6f8f7b', notes: '' },
+  { id: 'pod-3', name: 'Pod C', location: 'Cabin 2', color: '#c96f4a', notes: '' },
 ];
 
 // Reservation status lifecycle:
@@ -38,8 +37,8 @@ const reservations = [
   {
     id: 'res-overdue',
     podId: 'pod-1',
-    userId: 'u-alex',
-    name: 'Alex Chen',
+    userId: 'u-wei-lin',
+    name: 'Wei-lin',
     start: at(-50 * MIN),
     end: at(-5 * MIN),
     note: 'Recovering from a late night',
@@ -47,10 +46,10 @@ const reservations = [
   },
   // An active napper who is still within time, so they are NOT yet due to be woken.
   {
-    id: 'res-active-bri',
+    id: 'res-active-anastasios',
     podId: 'pod-2',
-    userId: 'u-bri',
-    name: 'Bri Patel',
+    userId: 'u-anastasios',
+    name: 'anastasios',
     start: at(-20 * MIN),
     end: at(30 * MIN),
     note: 'Post-lunch recharge',
@@ -60,8 +59,8 @@ const reservations = [
   {
     id: 'res-upcoming',
     podId: 'pod-3',
-    userId: 'u-carlos',
-    name: 'Carlos Reyes',
+    userId: 'u-guanglei',
+    name: 'Guanglei',
     start: at(2 * HOUR),
     end: at(2 * HOUR + 45 * MIN),
     note: 'Focus block reset',
@@ -70,15 +69,18 @@ const reservations = [
 ];
 
 // Users who volunteered to be wake-up duty.
-const wakerSignups = ['u-dana', 'u-emma'];
+const wakerSignups = ['u-tony', 'u-guanglei'];
+
+// Wakers who declined their wake-up assignment (so we don't re-pick them immediately).
+const declinedWakerIds = new Set();
 
 // The randomly-chosen waker for this session (chosen from the signup pool).
-let assignedWakerId = 'u-dana';
+let assignedWakerId = 'u-tony';
 
 const notifications = [
   {
     id: uid('notif'),
-    userId: 'u-dana',
+    userId: 'u-tony',
     type: 'wake-duty',
     title: 'Wake-up duty assigned',
     message: 'You were randomly chosen to help wake teammates whose nap time is up.',
@@ -87,10 +89,10 @@ const notifications = [
   },
   {
     id: uid('notif'),
-    userId: 'u-dana',
+    userId: 'u-tony',
     type: 'wake-needed',
     title: 'Someone needs waking',
-    message: 'Alex Chen\'s nap time is up in Pod A (Cabin 1). Please go wake them.',
+    message: 'Wei-lin\'s nap time is up in Pod A (Cabin 1). Please go wake them.',
     createdAt: at(-3 * MIN),
     read: false,
   },
@@ -201,15 +203,24 @@ function signupWaker(userId) {
 function resignWaker(userId) {
   const i = wakerSignups.indexOf(userId);
   if (i >= 0) wakerSignups.splice(i, 1);
+  declinedWakerIds.delete(userId);
 }
 
 // Randomly choose one signed-up waker to be on duty.
-function assignWaker() {
-  if (wakerSignups.length === 0) {
+// Declined wakers are skipped. When an explicit reject happens, the person who just
+// declined is excluded too, so they are not immediately re-picked. A manual assign
+// still falls back to the whole pool if everyone has declined.
+function assignWaker({ excludeId } = {}) {
+  const available = wakerSignups.filter(
+    (id) => id !== excludeId && !declinedWakerIds.has(id)
+  );
+  const pool = available.length > 0 ? available : excludeId ? [] : wakerSignups;
+
+  if (pool.length === 0) {
     assignedWakerId = null;
     return null;
   }
-  const pick = wakerSignups[Math.floor(Math.random() * wakerSignups.length)];
+  const pick = pool[Math.floor(Math.random() * pool.length)];
   assignedWakerId = pick;
   const user = users.find((u) => u.id === pick);
   notifications.unshift({
@@ -222,6 +233,28 @@ function assignWaker() {
     read: false,
   });
   return user;
+}
+
+// The on-duty waker declines the assignment (e.g. they are busy).
+// They are skipped for the rest of the pool and a new waker is auto-assigned.
+function rejectWakerOffer({ userId } = {}) {
+  if (assignedWakerId && assignedWakerId !== userId) {
+    throw new Error('Only the assigned waker can reject this offer');
+  }
+  if (assignedWakerId) declinedWakerIds.add(assignedWakerId);
+
+  notifications.unshift({
+    id: uid('notif'),
+    userId: assignedWakerId,
+    type: 'wake-declined',
+    title: 'Wake-up duty declined',
+    message: `${users.find((u) => u.id === assignedWakerId)?.name || 'You'} turned down this assignment. A new volunteer will be assigned.`,
+    createdAt: new Date().toISOString(),
+    read: false,
+  });
+
+  const next = assignWaker({ excludeId: assignedWakerId });
+  return next;
 }
 
 // Waker marks a time-up sleeper as woken.
@@ -277,6 +310,7 @@ export {
   signupWaker,
   resignWaker,
   assignWaker,
+  rejectWakerOffer,
   wakeUser,
   exitSleep,
   markNotificationsRead,

@@ -34,6 +34,7 @@ export default function Notifications() {
     'wake-duty': '🔔',
     'wake-needed': '⏰',
     awake: '🌅',
+    'wake-declined': '🙅',
     info: '💡',
   };
 

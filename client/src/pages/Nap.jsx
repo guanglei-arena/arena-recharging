@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../App.jsx';
 import { api } from '../api.js';
 import {
@@ -137,7 +138,7 @@ function PodCalendar({ pod }) {
                   style={{
                     top: top + 2,
                     height: Math.max(28, height - 6),
-                    background: mine ? pod.color : 'rgba(148,143,230,0.35)',
+                    background: mine ? pod.color : 'rgba(111,125,59,0.25)',
                   }}
                   title={`${r.name} · ${formatRange(r.startMs, r.endMs)}`}
                 >
@@ -316,9 +317,16 @@ export default function Nap() {
                 : `Scheduled to end ${minutesFromNow(myRes.endMs)} · Pod ${podName(state, myRes.podId)}`}
             </span>
           </p>
-          <button className="btn btn-coral" onClick={handleExit}>
-            Exit nap
-          </button>
+          {myRes.userId === currentUser?.id && (
+            <>
+              <Link to="/sleeping" className="btn btn-green" style={{ whiteSpace: 'nowrap' }}>
+                😴 I'm in the pod
+              </Link>
+              <button className="btn btn-coral" onClick={handleExit}>
+                Exit nap
+              </button>
+            </>
+          )}
         </div>
       )}
 
