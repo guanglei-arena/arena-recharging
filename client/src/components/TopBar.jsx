@@ -6,12 +6,15 @@ import UserSwitcher from './UserSwitcher.jsx';
 export default function TopBar() {
   const { state, currentUser } = useApp();
   const podsVacant = (state?.pods || []).filter((p) => p.status === 'vacant').length;
+  const myNap = (state?.reservations || []).find(
+    (r) => r.userId === currentUser?.id && ['active', 'timeup'].includes(r.status)
+  );
 
   return (
     <header className="topbar">
       <div className="brand">
-        <span className="logo">🌙</span>
-        <span>Recharge Lounge</span>
+        <span className="logo">🌿</span>
+        <span>Arena Pause</span>
       </div>
 
       <nav className="nav">
@@ -20,9 +23,11 @@ export default function TopBar() {
         </NavLink>
         <NavLink to="/nap">Request a Nap</NavLink>
         <NavLink to="/wake">Wake a Teammate</NavLink>
+        <NavLink to="/how">How it works</NavLink>
       </nav>
 
       <div className="topbar-right">
+        {myNap && <NavLink to="/sleep" className="pill">😴 I'm sleeping</NavLink>}
         <span className="pill">🛏 {podsVacant} pod{podsVacant === 1 ? '' : 's'} free</span>
         <Notifications />
         <UserSwitcher user={currentUser} />

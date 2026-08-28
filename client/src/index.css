@@ -1,21 +1,21 @@
 :root {
-  --bg: #131228;
-  --bg-2: #1a1837;
-  --panel: #211e44;
-  --panel-2: #2a264f;
-  --border: rgba(148, 143, 230, 0.18);
-  --text: #eceaf9;
-  --muted: #a09bcb;
-  --accent: #8b7cf6;
-  --accent-2: #b9a8ff;
-  --violet: #7c6ff0;
-  --cyan: #4fb3d9;
-  --coral: #f0917c;
-  --green: #57d5a6;
-  --amber: #f4c36a;
-  --danger: #ff7a8a;
+  /* Earth palette — warm paper, terracotta, moss, ochre, stone */
+  --bg: #f4ece0; /* oat */
+  --bg-2: #ece0cd; /* warm sand */
+  --panel: #fbf6ec; /* linen */
+  --panel-2: #f2e9d9; /* sand */
+  --border: rgba(93, 71, 46, 0.18);
+  --text: #3d3226; /* bark */
+  --muted: #6f6050; /* driftwood */
+  --accent: #9c5c37; /* terracotta */
+  --accent-2: #7f4526; /* deep clay */
+  --clay: #9c5c37;
+  --moss: #6f8a52;
+  --ochre: #c08a2e;
+  --danger: #98402c;
   --radius: 16px;
-  --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  --shadow: 0 16px 34px rgba(74, 56, 34, 0.12);
+  --shadow-sm: 0 6px 16px rgba(74, 56, 34, 0.1);
 }
 
 * {
@@ -33,8 +33,9 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
   background:
-    radial-gradient(1200px 600px at 15% -10%, rgba(124, 111, 240, 0.28), transparent 60%),
-    radial-gradient(1000px 500px at 100% 0%, rgba(79, 179, 217, 0.18), transparent 55%),
+    radial-gradient(1100px 560px at 12% -10%, rgba(156, 92, 55, 0.16), transparent 62%),
+    radial-gradient(900px 480px at 100% 0%, rgba(111, 138, 82, 0.18), transparent 58%),
+    radial-gradient(800px 520px at 50% 110%, rgba(192, 138, 46, 0.12), transparent 60%),
     var(--bg);
   color: var(--text);
   line-height: 1.5;
@@ -76,17 +77,18 @@ a {
   font-weight: 800;
   font-size: 20px;
   letter-spacing: 0.2px;
+  color: var(--text);
 }
 
 .brand .logo {
   width: 34px;
   height: 34px;
   border-radius: 11px;
-  background: linear-gradient(140deg, var(--accent), var(--cyan));
+  background: linear-gradient(140deg, var(--accent), var(--ochre));
   display: grid;
   place-items: center;
   font-size: 18px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
 }
 
 .nav {
@@ -97,6 +99,7 @@ a {
   padding: 5px;
   border-radius: 12px;
   border: 1px solid var(--border);
+  flex-wrap: wrap;
 }
 
 .nav a {
@@ -107,9 +110,14 @@ a {
   font-size: 14px;
 }
 
+.nav a:hover {
+  color: var(--text);
+  background: var(--panel-2);
+}
+
 .nav a.active {
-  background: linear-gradient(140deg, var(--accent), var(--violet));
-  color: white;
+  background: linear-gradient(140deg, var(--accent), var(--accent-2));
+  color: #fffaf3;
 }
 
 .topbar-right {
@@ -129,7 +137,7 @@ a {
   font-size: clamp(30px, 5vw, 48px);
   line-height: 1.05;
   margin: 0 0 12px;
-  background: linear-gradient(120deg, #fff, var(--accent-2));
+  background: linear-gradient(120deg, #4a3b2a, var(--accent));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -164,7 +172,7 @@ a {
 }
 
 .card {
-  background: linear-gradient(180deg, var(--panel), var(--bg-2));
+  background: linear-gradient(180deg, var(--panel), #f7efe1);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 22px;
@@ -174,12 +182,13 @@ a {
 .action-card {
   text-align: left;
   display: block;
-  transition: transform 0.16s ease, border-color 0.16s ease;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
 .action-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(139, 124, 246, 0.55);
+  border-color: rgba(156, 92, 55, 0.55);
+  box-shadow: 0 20px 40px rgba(74, 56, 34, 0.16);
 }
 
 .action-icon {
@@ -190,20 +199,29 @@ a {
   place-items: center;
   font-size: 26px;
   margin-bottom: 15px;
-  background: rgba(139, 124, 246, 0.18);
+  background: rgba(156, 92, 55, 0.16);
 }
 
-.action-icon.coral {
-  background: rgba(240, 145, 124, 0.16);
+.action-icon.clay {
+  background: rgba(156, 92, 55, 0.16);
 }
 
-.action-icon.cyan {
-  background: rgba(79, 179, 217, 0.16);
+.action-icon.moss {
+  background: rgba(111, 138, 82, 0.18);
+}
+
+.action-icon.ochre {
+  background: rgba(192, 138, 46, 0.18);
+}
+
+.action-icon.stone {
+  background: rgba(140, 123, 107, 0.18);
 }
 
 .action-card h2 {
   margin: 0 0 6px;
   font-size: 21px;
+  color: var(--text);
 }
 
 .action-card p {
@@ -211,10 +229,15 @@ a {
   color: var(--muted);
 }
 
+.action-card .btn {
+  margin-top: 14px;
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 11px 18px;
   border-radius: 12px;
@@ -227,7 +250,7 @@ a {
 }
 
 .btn:hover {
-  filter: brightness(1.12);
+  filter: brightness(1.04);
 }
 
 .btn:active {
@@ -235,27 +258,30 @@ a {
 }
 
 .btn-primary {
-  background: linear-gradient(140deg, var(--accent), var(--violet));
-  color: white;
+  background: linear-gradient(140deg, var(--accent), var(--accent-2));
+  color: #fffaf3;
   border: none;
-  box-shadow: 0 8px 24px rgba(124, 111, 240, 0.35);
+  box-shadow: 0 8px 22px rgba(156, 92, 55, 0.3);
 }
 
-.btn-coral {
-  background: linear-gradient(140deg, #f0917c, #ef5a44);
-  color: white;
+.btn-clay {
+  background: linear-gradient(140deg, #b4694e, #8f4a30);
+  color: #fffaf3;
   border: none;
+  box-shadow: 0 8px 22px rgba(143, 74, 48, 0.26);
 }
 
-.btn-green {
-  background: linear-gradient(140deg, #57d5a6, #2bb07e);
-  color: #06251c;
+.btn-moss {
+  background: linear-gradient(140deg, #7d9a5e, #566f3d);
+  color: #f7fbf1;
   border: none;
+  box-shadow: 0 8px 22px rgba(86, 111, 61, 0.24);
 }
 
 .btn-ghost {
   background: transparent;
   border-color: var(--border);
+  color: var(--text);
 }
 
 .btn-sm {
@@ -265,8 +291,9 @@ a {
 }
 
 .btn:disabled {
-  opacity: 0.55;
+  opacity: 0.45;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* Section headers */
@@ -298,6 +325,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
 }
 
 .pod h3 {
@@ -306,6 +334,11 @@ a {
 }
 
 .pod .loc {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.loc {
   color: var(--muted);
   font-size: 13px;
 }
@@ -328,23 +361,23 @@ a {
 }
 
 .badge.vacant {
-  background: rgba(87, 213, 166, 0.16);
-  color: var(--green);
+  background: rgba(111, 138, 82, 0.16);
+  color: #546b39;
 }
 
 .badge.vacant .dot {
-  background: var(--green);
-  box-shadow: 0 0 0 4px rgba(87, 213, 166, 0.18);
+  background: var(--moss);
+  box-shadow: 0 0 0 4px rgba(111, 138, 82, 0.2);
 }
 
 .badge.occupied {
-  background: rgba(244, 195, 106, 0.16);
-  color: var(--amber);
+  background: rgba(192, 138, 46, 0.18);
+  color: #7d5410;
 }
 
 .badge.occupied .dot {
-  background: var(--amber);
-  box-shadow: 0 0 0 4px rgba(244, 195, 106, 0.18);
+  background: var(--ochre);
+  box-shadow: 0 0 0 4px rgba(192, 138, 46, 0.2);
 }
 
 /* Pod status summary row */
@@ -408,7 +441,7 @@ a {
 
 .timeline {
   position: relative;
-  background: var(--bg);
+  background: #fdfaf3;
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 14px 0 14px 64px;
@@ -419,7 +452,7 @@ a {
 .timeline .hour {
   position: relative;
   height: 52px;
-  border-bottom: 1px dashed rgba(148, 143, 230, 0.12);
+  border-bottom: 1px dashed rgba(93, 71, 46, 0.16);
 }
 
 .timeline .hour:last-child {
@@ -444,10 +477,10 @@ a {
   padding: 6px 10px;
   font-size: 12.5px;
   overflow: hidden;
-  color: #1c1830;
+  color: #3d3226;
   font-weight: 600;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(61, 50, 38, 0.22);
+  box-shadow: 0 4px 12px rgba(74, 56, 34, 0.18);
   cursor: default;
 }
 
@@ -459,7 +492,7 @@ a {
 }
 
 .block.mine {
-  outline: 2px solid #fff;
+  outline: 2px solid rgba(61, 50, 38, 0.45);
 }
 
 /* Forms */
@@ -482,9 +515,13 @@ textarea {
   padding: 11px 13px;
   border-radius: 11px;
   border: 1px solid var(--border);
-  background: var(--bg);
+  background: #fffdf8;
   color: var(--text);
   font: inherit;
+}
+
+.input::placeholder {
+  color: #8b7c68;
 }
 
 .input:focus,
@@ -492,7 +529,7 @@ textarea {
 textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(139, 124, 246, 0.18);
+  box-shadow: 0 0 0 3px rgba(156, 92, 55, 0.2);
 }
 
 .form-grid {
@@ -526,9 +563,9 @@ textarea:focus {
   place-items: center;
   font-weight: 800;
   font-size: 16px;
-  color: white;
+  color: #fffaf3;
   flex-shrink: 0;
-  background: linear-gradient(140deg, var(--accent), var(--cyan));
+  background: linear-gradient(140deg, var(--accent), var(--ochre));
 }
 
 .row-main {
@@ -556,9 +593,19 @@ textarea:focus {
   font-weight: 700;
   padding: 4px 9px;
   border-radius: 8px;
-  background: rgba(139, 124, 246, 0.16);
+  background: rgba(156, 92, 55, 0.14);
   color: var(--accent-2);
   margin-left: 6px;
+}
+
+.tag.moss {
+  background: rgba(111, 138, 82, 0.18);
+  color: #4f6635;
+}
+
+.tag.danger {
+  background: rgba(180, 80, 60, 0.14);
+  color: var(--danger);
 }
 
 /* Banner / notices */
@@ -570,21 +617,27 @@ textarea:focus {
   gap: 14px;
   margin-bottom: 16px;
   border: 1px solid var(--border);
+  flex-wrap: wrap;
 }
 
 .banner.amber {
-  background: rgba(244, 195, 106, 0.12);
-  border-color: rgba(244, 195, 106, 0.3);
+  background: rgba(192, 138, 46, 0.14);
+  border-color: rgba(192, 138, 46, 0.34);
 }
 
-.banner.blue {
-  background: rgba(79, 179, 217, 0.12);
-  border-color: rgba(79, 179, 217, 0.3);
+.banner.sage {
+  background: rgba(95, 127, 120, 0.14);
+  border-color: rgba(95, 127, 120, 0.32);
 }
 
 .banner.green {
-  background: rgba(87, 213, 166, 0.12);
-  border-color: rgba(87, 213, 166, 0.3);
+  background: rgba(111, 138, 82, 0.16);
+  border-color: rgba(111, 138, 82, 0.34);
+}
+
+.banner.clay {
+  background: rgba(156, 92, 55, 0.13);
+  border-color: rgba(156, 92, 55, 0.32);
 }
 
 .banner .icon {
@@ -594,6 +647,7 @@ textarea:focus {
 .banner p {
   margin: 0;
   flex: 1;
+  min-width: 220px;
 }
 
 .banner strong {
@@ -627,8 +681,8 @@ textarea:focus {
   position: absolute;
   top: -6px;
   right: -6px;
-  background: var(--coral);
-  color: white;
+  background: var(--clay);
+  color: #fffaf3;
   font-size: 11px;
   font-weight: 800;
   height: 19px;
@@ -652,6 +706,7 @@ textarea:focus {
   box-shadow: var(--shadow);
   z-index: 40;
   padding: 8px;
+  color: var(--text);
 }
 
 .notif {
@@ -663,7 +718,7 @@ textarea:focus {
 }
 
 .notif.unread {
-  background: rgba(139, 124, 246, 0.12);
+  background: rgba(156, 92, 55, 0.12);
 }
 
 .notif .n-icon {
@@ -703,8 +758,13 @@ textarea:focus {
   color: var(--text);
   font: inherit;
   font-weight: 700;
-  font-weight: 14px;
+  font-size: 14px;
   outline: none;
+}
+
+.user-chip select option {
+  color: #3d3226;
+  background: #fbf6ec;
 }
 
 .user-chip .avatar {
@@ -729,10 +789,64 @@ textarea:focus {
   gap: 6px;
   padding: 6px 12px;
   border-radius: 999px;
-  background: rgba(139, 124, 246, 0.14);
+  background: rgba(156, 92, 55, 0.13);
   color: var(--accent-2);
   font-weight: 700;
   font-size: 13px;
+}
+
+/* Nap screen — the calm full-screen view for someone who is sleeping */
+.nap-screen {
+  min-height: 74vh;
+  display: grid;
+  place-items: center;
+  padding: 40px 0 10px;
+}
+
+.nap-screen .nap-card {
+  text-align: center;
+  max-width: 520px;
+  width: 100%;
+  padding: 44px 34px;
+}
+
+.nap-screen .nap-icon {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 18px;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  font-size: 36px;
+  background: rgba(156, 92, 55, 0.16);
+}
+
+.nap-screen h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+}
+
+.nap-screen .nap-meta {
+  color: var(--muted);
+  font-size: 15px;
+  margin-bottom: 26px;
+}
+
+.btn-wake {
+  width: 100%;
+  padding: 20px 22px;
+  font-size: 20px;
+  border-radius: 16px;
+  background: linear-gradient(140deg, #d9a441, #c9973f);
+  color: #3d3226;
+  border: none;
+  box-shadow: 0 14px 34px rgba(156, 92, 55, 0.3);
+}
+
+.nap-screen .nap-hint {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 14px;
 }
 
 /* misc */
@@ -743,8 +857,8 @@ textarea:focus {
 .spin {
   width: 20px;
   height: 20px;
-  border: 3px solid rgba(255,255,255,0.3);
-  border-top-color: #fff;
+  border: 3px solid rgba(255, 250, 243, 0.4);
+  border-top-color: #fffaf3;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   display: inline-block;

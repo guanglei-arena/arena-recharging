@@ -5,11 +5,13 @@ import TopBar from './components/TopBar.jsx';
 import Home from './pages/Home.jsx';
 import Nap from './pages/Nap.jsx';
 import Wake from './pages/Wake.jsx';
+import HowItWorks from './pages/HowItWorks.jsx';
+import Sleeping from './pages/Sleeping.jsx';
 
 const AppContext = createContext(null);
 export const useApp = () => useContext(AppContext);
 
-const DEFAULT_USER_ID = 'u-alex';
+const DEFAULT_USER_ID = 'u-weilin';
 const POLL_MS = 5000;
 
 export default function App() {
@@ -60,11 +62,13 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/nap" element={<Nap />} />
+          <Route path="/sleep" element={<Sleeping />} />
           <Route path="/wake" element={<Wake />} />
+          <Route path="/how" element={<HowItWorks />} />
         </Routes>
         <div className="footer">
-          <div style={{ marginBottom: 6 }}>🌙 Recharge Lounge · sleep pod recharging for teams</div>
-          <div>Request a nap · volunteer to wake a teammate · exit when you are up</div>
+          <div style={{ marginBottom: 6 }}>🌿 Arena Pause · sleep pod recharging for teams</div>
+          <div>Request a nap · volunteer to wake a teammate · tap “I'm awake” when you are up</div>
         </div>
       </div>
     </AppContext.Provider>

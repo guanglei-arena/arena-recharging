@@ -1,19 +1,21 @@
-# 🌙 Recharge Lounge — Sleep Pod Recharging
+# 🌿 Arena Pause — Sleep Pod Recharging
 
 A tiny full-stack web app for a team recharge lounge. Reserve a sleep pod for a
 nap, volunteer as a wake-up buddy, and let one randomly-chosen volunteer come
-wake anyone whose nap time is up.
+wake anyone whose nap time is up. Warm, earth-toned UI, no dark mode glare.
 
 ## Features
 
 | Requirement | Where |
 |---|---|
 | **Home** page with two actions — request a nap, or volunteer to wake others | `/` |
+| **How it works** as its own tab (moved off the home page) | `/how` |
 | **Pods list** (demo with 3 pods) showing **occupied / vacant** status | `/nap` |
 | **Schedule blocks of time** on each pod's calendar (like Google Calendar) | `/nap` |
+| **Nap screen** with a single **I'm awake** button, gated to the person who is booked | `/sleep` |
 | **Randomly choose** one signed-up volunteer to be the waker | `/wake` |
+| Waker can **decline** the duty — it is handed straight to another volunteer | `/wake` |
 | Waker can **wake** people whose planned time is up | `/wake` |
-| Napper has an **Exit** button to leave the schedule (so no one is sent to wake them) | `/nap` |
 | The designated waker is **notified** to go wake / or that they self-exited | bell 🔔 + `/wake` |
 
 ## How it works
@@ -22,10 +24,14 @@ wake anyone whose nap time is up.
    **occupied** during any booked window and **vacant** otherwise.
 2. **Nap** — when your planned end time passes, you go into **"time up"**.
 3. **Who wakes you?** — Anyone can volunteer to be a wake-up buddy. One
-   volunteer is randomly chosen each session to be on duty.
-4. **Wake or self-exit** — the on-duty waker sees the "needs waking" list,
-   taps **Wake up**, and you're notified. If you'd rather get up on your own,
-   tap **Exit** on your nap page — then the waker is told not to come get you.
+   volunteer is randomly chosen each session to be on duty. If that person is
+   unavailable (in a meeting at the wake-up time), they tap **I can't — pass it
+   on** and the duty is immediately re-assigned to another volunteer. People who
+   declined are skipped for the rest of the round.
+4. **Wake or get up on your own** — the on-duty waker sees the "needs waking"
+   list and taps **Wake up**. Already up? Open the nap screen (`😴 I'm sleeping`
+   on the Request a Nap page, or the pill in the top bar) and tap **I'm awake** —
+   that closes the nap and tells the waker not to come.
 
 ## Tech
 
@@ -58,6 +64,7 @@ POST /api/reservations                 book a pod  {podId,userId,start,end,note}
 POST /api/wakers/signup                {userId}
 POST /api/wakers/resign                {userId}
 POST /api/wakers/assign                pick a random on-duty waker
+POST /api/wakers/decline               {userId}  (on-duty waker passes it on)
 POST /api/reservations/:id/wake        {userId}  (assignee wakes the napper)
 POST /api/reservations/:id/exit        {userId}  (napper leaves on their own)
 POST /api/notifications/read           {userId}
@@ -67,5 +74,6 @@ POST /api/notifications/read           {userId}
 
 - Use the **user switcher** in the top bar to act as different teammates
   (the napper, the waker, etc.) — this is how you demo the full loop.
+- Demo users: **Wei-lin**, **Anastasios**, **Guanglei**, **Tony**.
 - Data is in-memory and resets on restart; the seed data already includes a
-  **time-up** napper (Alex Chen) so you can try the waking flow immediately.
+  **time-up** napper (Wei-lin) so you can try the waking flow immediately.

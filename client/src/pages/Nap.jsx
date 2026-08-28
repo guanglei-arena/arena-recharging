@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../App.jsx';
 import { api } from '../api.js';
 import {
@@ -12,7 +13,12 @@ import {
   initials,
   nextHalfHour,
   minutesFromNow,
+  blendHex,
 } from '../lib.js';
+
+// Keep in sync with .timeline in index.css — blocks are blended toward it so the
+// dark text on top stays readable over every pod colour.
+const TIMELINE_BG = '#fdfaf3';
 
 function PodCalendar({ pod }) {
   const { state, currentUser, refresh, notify } = useApp();
@@ -137,7 +143,9 @@ function PodCalendar({ pod }) {
                   style={{
                     top: top + 2,
                     height: Math.max(28, height - 6),
-                    background: mine ? pod.color : 'rgba(148,143,230,0.35)',
+                    background: mine
+                      ? blendHex(pod.color, TIMELINE_BG, 0.7)
+                      : blendHex('#9a8672', TIMELINE_BG, 0.4),
                   }}
                   title={`${r.name} · ${formatRange(r.startMs, r.endMs)}`}
                 >
@@ -234,31 +242,18 @@ function statLabel(status) {
 }
 
 export default function Nap() {
-  const { state, currentUser, refresh, notify } = useApp();
+  const { state, currentUser } = useApp();
   const [selectedPodId, setSelectedPodId] = useState(state?.pods?.[0]?.id);
-  const [notice, setNotice] = useState(null);
 
   const pods = state?.pods || [];
   const selectedPod = pods.find((p) => p.id === selectedPodId) || pods[0];
 
-  // The current user's sitting reservation (active or time-up).
+  // The current user's sitting reservation (active or time-up) — the only people
+  // who can open the nap screen.
   const myRes = (state?.reservations || []).find((r) => r.userId === currentUser?.id && ['active', 'timeup'].includes(r.status));
 
   const podCount = (podId) =>
     (state?.reservations || []).filter((r) => r.podId === podId && ['active', 'timeup', 'scheduled'].includes(r.status)).length;
-
-  async function handleExit() {
-    if (!myRes) return;
-    setNotice(null);
-    try {
-      await api.exitSleep(myRes.id, currentUser.id);
-      await refresh();
-      notify();
-      setNotice({ kind: 'green', icon: '🌅', text: 'You exited the nap. No one will be sent to wake you.' });
-    } catch (err) {
-      setNotice({ kind: 'amber', icon: '⚠️', text: err.message });
-    }
-  }
 
   return (
     <div>
@@ -268,6 +263,46 @@ export default function Nap() {
           Pick a pod, check its status, and reserve a block of time for your nap. Pods show
           <strong> occupied</strong> or <strong>vacant</strong> based on real bookings.
         </p>
+      </div>
+
+      {/* Nap mode entry — only unlocks for the teammate whose pod time is running. */}
+      <div className={`banner ${myRes ? (myRes.status === 'timeup' ? 'amber' : 'sage') : 'clay'}`}>
+        <span className="icon">{myRes ? (myRes.status === 'timeup' ? '⏰' : '😴') : '🌿'}</span>
+        {myRes ? (
+          <p>
+            <strong>
+              {myRes.status === 'timeup'
+                ? 'Your nap time is up!'
+                : `You are napping in the pod until ${formatTime(myRes.endMs)}`}
+            </strong>
+            <span className="sub">
+              {myRes.status === 'timeup'
+                ? 'Open the nap screen and tap “I’m awake” — then no teammate is sent to wake you.'
+                : `Scheduled to end ${minutesFromNow(myRes.endMs)} · Pod ${podName(state, myRes.podId)}`}
+            </span>
+          </p>
+        ) : (
+          <p>
+            <strong>Nap mode</strong>
+            <span className="sub">
+              While you sleep, open the nap screen — it has a single <strong>I’m awake</strong>{' '}
+              button. It unlocks for the teammate whose booked pod time is running.
+            </span>
+          </p>
+        )}
+        {myRes ? (
+          <Link to="/sleep" className="btn btn-primary">
+            😴 I'm sleeping
+          </Link>
+        ) : (
+          <button
+            className="btn btn-primary"
+            disabled
+            title="Book a pod first — this opens for the teammate whose booking is running"
+          >
+            😴 I'm sleeping
+          </button>
+        )}
       </div>
 
       <div className="section-title">Pods</div>
@@ -300,34 +335,6 @@ export default function Nap() {
           );
         })}
       </div>
-
-      {myRes && (
-        <div className={`banner ${myRes.status === 'timeup' ? 'amber' : 'blue'}`}>
-          <span className="icon">{myRes.status === 'timeup' ? '⏰' : '😴'}</span>
-          <p>
-            <strong>
-              {myRes.status === 'timeup'
-                ? 'Your nap time is up!'
-                : `You are napping in the pod until ${formatTime(myRes.endMs)}`}
-            </strong>
-            <span className="sub">
-              {myRes.status === 'timeup'
-                ? 'Tap Exit to get up on your own — then a teammate is not sent to wake you.'
-                : `Scheduled to end ${minutesFromNow(myRes.endMs)} · Pod ${podName(state, myRes.podId)}`}
-            </span>
-          </p>
-          <button className="btn btn-coral" onClick={handleExit}>
-            Exit nap
-          </button>
-        </div>
-      )}
-
-      {notice && (
-        <div className={`banner ${notice.kind}`}>
-          <span className="icon">{notice.icon}</span>
-          <p>{notice.text}</p>
-        </div>
-      )}
 
       <div className="section-title">Schedule on the calendar</div>
       {selectedPod ? (

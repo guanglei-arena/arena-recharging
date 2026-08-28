@@ -1,20 +1,19 @@
 import { useState } from 'react';
 import { useApp } from '../App.jsx';
 import { api } from '../api.js';
-import { formatTime, gradientFor, initials, minutesFromNow } from '../lib.js';
+import { gradientFor, initials, minutesFromNow } from '../lib.js';
 
 export default function Wake() {
   const { state, currentUser, setCurrentUser, refresh, notify } = useApp();
   const [busy, setBusy] = useState(false);
+  const [declining, setDeclining] = useState(false);
   const [notice, setNotice] = useState(null);
 
   const wakeList = state?.wakeList || [];
-  const signups = state?.wakerSignups || []; // array of names
+  const pool = state?.wakerSignups || []; // [{ id, name, declined }]
   const assignedWaker = state?.assignedWaker;
-  const currentIsWaker = signups.includes(currentUser?.name);
+  const currentIsWaker = pool.some((p) => p.id === currentUser?.id);
   const isAssigned = assignedWaker?.id === currentUser?.id;
-
-  const wakerUser = (name) => (state?.users || []).find((u) => u.name === name);
 
   async function handleSignup() {
     if (!currentUser) return;
@@ -51,7 +50,32 @@ export default function Wake() {
     }
   }
 
-  async function handleWake(resId, userId) {
+  // The volunteer on duty turns the offer down; the duty is handed on.
+  async function handleDecline() {
+    if (!currentUser) return;
+    setDeclining(true);
+    setNotice(null);
+    try {
+      const { assignedWaker: next } = await api.declineWaker(currentUser.id);
+      await refresh();
+      notify();
+      setNotice(
+        next
+          ? { kind: 'green', icon: '🤝', text: `No problem — the duty was handed to ${next.name}.` }
+          : {
+              kind: 'amber',
+              icon: '⚠️',
+              text: 'You are off duty, but no other volunteer is available right now.',
+            }
+      );
+    } catch (err) {
+      setNotice({ kind: 'amber', icon: '⚠️', text: err.message });
+    } finally {
+      setDeclining(false);
+    }
+  }
+
+  async function handleWake(resId) {
     if (!currentUser) return;
     setNotice(null);
     try {
@@ -70,8 +94,8 @@ export default function Wake() {
         <h1>Volunteer to wake teammates</h1>
         <p>
           Sign up to be a wake-up buddy. One volunteer is <strong>randomly chosen</strong> each
-          session to wake teammates whose nap time is up — and is notified if they exit on their
-          own.
+          session to wake teammates whose nap time is up — and can pass the duty on if they are
+          tied up.
         </p>
       </div>
 
@@ -111,9 +135,11 @@ export default function Wake() {
                   {initials(assignedWaker.name)}
                 </span>
                 <div className="row-main">
-                  <strong>{assignedWaker.name} <span className="tag">on duty</span></strong>
+                  <strong>
+                    {assignedWaker.name} <span className="tag">on duty</span>
+                  </strong>
                   <span className="sub">
-                    Randomly chosen from {signups.length} volunteer{signups.length === 1 ? '' : 's'}
+                    Randomly chosen from {pool.length} volunteer{pool.length === 1 ? '' : 's'}
                   </span>
                 </div>
               </div>
@@ -121,47 +147,74 @@ export default function Wake() {
               <div className="empty">No waker assigned yet.</div>
             )}
           </div>
+
+          {isAssigned && (
+            <div className="banner amber mt" style={{ marginBottom: 0 }}>
+              <span className="icon">🫵</span>
+              <p>
+                <strong>The duty is yours</strong>
+                <span className="sub">
+                  Stuck in a meeting at the wake-up time? Decline and it goes straight to another
+                  volunteer.
+                </span>
+              </p>
+            </div>
+          )}
+
           <button
             className="btn btn-primary mt"
             style={{ width: '100%' }}
             onClick={handleAssign}
-            disabled={busy || signups.length === 0}
+            disabled={busy || pool.length === 0}
           >
             {busy ? <span className="spin" /> : '🎲 Randomly assign a waker'}
           </button>
-          {signups.length === 0 && (
+          {pool.length === 0 && (
             <div className="muted" style={{ fontSize: 13, marginTop: 8, textAlign: 'center' }}>
               At least one person must sign up first.
             </div>
+          )}
+
+          {isAssigned && (
+            <button
+              className="btn btn-ghost mt"
+              style={{ width: '100%' }}
+              onClick={handleDecline}
+              disabled={declining}
+            >
+              {declining ? <span className="spin" /> : '🙅 I can’t — pass it on'}
+            </button>
           )}
         </div>
 
         <div className="card">
           <div className="pod-head">
             <h3 style={{ margin: 0 }}>Volunteer pool</h3>
-            <span className="tag">{signups.length}</span>
+            <span className="tag">{pool.length}</span>
           </div>
           <div className="mt list">
-            {signups.length === 0 ? (
+            {pool.length === 0 ? (
               <div className="empty">No volunteers yet — be the first!</div>
             ) : (
-              signups.map((name) => {
-                const u = wakerUser(name);
-                const me = u?.id === currentUser?.id;
+              pool.map((v) => {
+                const me = v.id === currentUser?.id;
                 return (
-                  <div className="row-item" key={name}>
+                  <div className="row-item" key={v.id}>
                     <span
                       className="avatar"
                       style={{
-                        background: `linear-gradient(140deg, ${gradientFor(name)[0]}, ${gradientFor(name)[1]})`,
+                        background: `linear-gradient(140deg, ${gradientFor(v.name)[0]}, ${gradientFor(v.name)[1]})`,
                       }}
                     >
-                      {initials(name)}
+                      {initials(v.name)}
                     </span>
                     <div className="row-main">
                       <strong>
-                        {name}
-                        {u?.id === assignedWaker?.id && <span className="tag">on duty</span>}
+                        {v.name}
+                        {v.id === assignedWaker?.id && <span className="tag">on duty</span>}
+                        {v.declined && v.id !== assignedWaker?.id && (
+                          <span className="tag danger">declined this round</span>
+                        )}
                       </strong>
                     </div>
                     {me && (
@@ -192,99 +245,79 @@ export default function Wake() {
       {wakeList.length === 0 ? (
         <div className="card">
           <div className="empty">
-            🎉 No one is over their time right now. Nappers who exceed their scheduled time will
+            🌿 No one is over their time right now. Nappers who exceed their scheduled time will
             appear here.
           </div>
         </div>
       ) : (
-        <div className="list">
-          {wakeList.map((r) => {
-            const overFor = minutesFromNow(new Date(r.endMs).getTime());
-            const canWake = isAssigned;
-            return (
-              <div className="row-item" key={r.id}>
-                <span
-                  className="avatar"
-                  style={{
-                    background: `linear-gradient(140deg, ${gradientFor(r.name)[0]}, ${gradientFor(r.name)[1]})`,
-                  }}
-                >
-                  {initials(r.name)}
-                </span>
-                <div className="row-main">
-                  <strong>
-                    {r.name}
-                    <span className="tag danger" style={{ background: 'rgba(255,122,138,0.16)', color: 'var(--danger)' }}>
-                      time up
-                    </span>
-                  </strong>
-                  <span className="sub">
-                    {podName(state, r.podId)} · over by {overFor}
-                    {r.note ? ` · “${r.note}”` : ''}
+        <>
+          <div className="list">
+            {wakeList.map((r) => {
+              const overFor = minutesFromNow(new Date(r.endMs).getTime());
+              const canWake = isAssigned;
+              return (
+                <div className="row-item" key={r.id}>
+                  <span
+                    className="avatar"
+                    style={{
+                      background: `linear-gradient(140deg, ${gradientFor(r.name)[0]}, ${gradientFor(r.name)[1]})`,
+                    }}
+                  >
+                    {initials(r.name)}
                   </span>
-                </div>
-                <div className="row-side">
-                  {canWake ? (
-                    <button
-                      className="btn btn-green btn-sm"
-                      onClick={() => handleWake(r.id, currentUser.id)}
-                    >
-                      🌅 Wake up
-                    </button>
-                  ) : (
-                    <>
-                      <button
-                        className="btn btn-green btn-sm"
-                        style={{ opacity: 0.4 }}
-                        disabled
-                        title="Only the assigned waker can wake them"
-                      >
+                  <div className="row-main">
+                    <strong>
+                      {r.name}
+                      <span className="tag danger">time up</span>
+                    </strong>
+                    <span className="sub">
+                      {podName(state, r.podId)} · over by {overFor}
+                      {r.note ? ` · “${r.note}”` : ''}
+                    </span>
+                  </div>
+                  <div className="row-side">
+                    {canWake ? (
+                      <button className="btn btn-moss btn-sm" onClick={() => handleWake(r.id)}>
                         🌅 Wake up
                       </button>
-                      {assignedWaker && (
+                    ) : (
+                      <>
                         <button
-                          className="btn btn-ghost btn-sm mt"
-                          style={{ marginTop: 6 }}
-                          onClick={() => setCurrentUser(assignedWaker.id)}
-                          title={`Switch to ${assignedWaker.name} to wake them`}
+                          className="btn btn-moss btn-sm"
+                          style={{ opacity: 0.4 }}
+                          disabled
+                          title="Only the assigned waker can wake them"
                         >
-                          👤 Act as {assignedWaker.name}
+                          🌅 Wake up
                         </button>
-                      )}
-                    </>
-                  )}
+                        {assignedWaker && (
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            style={{ marginTop: 6 }}
+                            onClick={() => setCurrentUser(assignedWaker.id)}
+                            title={`Switch to ${assignedWaker.name} to wake them`}
+                          >
+                            👤 Act as {assignedWaker.name}
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+          {!assignedWaker && (
+            <div className="banner amber mt" style={{ marginBottom: 0 }}>
+              <span className="icon">⚠️</span>
+              <p>
+                <strong>No volunteer is on duty right now</strong>
+                <span className="sub">Assign a waker above so someone covers these nappers.</span>
+              </p>
+            </div>
+          )}
+        </>
       )}
-
-      <div className="section-title">How waking works</div>
-      <div className="grid grid-3">
-        <div className="card">
-          <div className="action-icon" style={{ background: 'rgba(139,124,246,0.16)' }}>1</div>
-          <h3>Time runs out</h3>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            When a napper's planned end time passes, they appear here as “time up.”
-          </p>
-        </div>
-        <div className="card">
-          <div className="action-icon" style={{ background: 'rgba(244,195,106,0.16)' }}>2</div>
-          <h3>Buddy is notified</h3>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            The assigned waker gets a notification and taps <strong>Wake up</strong> to go get them.
-          </p>
-        </div>
-        <div className="card">
-          <div className="action-icon" style={{ background: 'rgba(87,213,166,0.16)' }}>3</div>
-          <h3>Or they self-exit</h3>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            If the napper taps <strong>Exit</strong> on their nap page, they're marked exited and no
-            one is sent to wake them.
-          </p>
-        </div>
-      </div>
     </div>
   );
 }

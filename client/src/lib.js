@@ -1,16 +1,30 @@
+// Earth-tone gradients for avatars and calendar blocks.
 const PALETTE = [
-  ['#7c6ff0', '#4fb3d9'],
-  ['#f0917c', '#ef5a44'],
-  ['#57d5a6', '#2bb07e'],
-  ['#f4c36a', '#ef9f3c'],
-  ['#b9a8ff', '#7c6ff0'],
-  ['#ff8fb2', '#f05a8c'],
+  ['#b4694e', '#8f4a30'], // clay
+  ['#7d9a5e', '#566f3d'], // moss
+  ['#c9973f', '#a2741f'], // ochre
+  ['#9a8672', '#6f5c48'], // stone
+  ['#c08a6b', '#96603f'], // sand
+  ['#5f7f78', '#42605a'], // eucalyptus
 ];
 
 export function gradientFor(name = '') {
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
   return PALETTE[h % PALETTE.length];
+}
+
+// Blend a hex colour toward a background colour. Used to lighten the earthy pod
+// colours enough that the dark text on calendar blocks stays legible.
+export function blendHex(fg, bg, amount = 0.7) {
+  const channel = (h, i) => parseInt(h.slice(i, i + 2), 16);
+  return (
+    '#' +
+    [1, 3, 5]
+      .map((i) => Math.round(channel(fg, i) * amount + channel(bg, i) * (1 - amount)))
+      .map((v) => v.toString(16).padStart(2, '0'))
+      .join('')
+  );
 }
 
 export function initials(name = '') {

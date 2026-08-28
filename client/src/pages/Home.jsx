@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <div>
       <div className="hero">
-        <h1>Recharge, then get back to flow.</h1>
+        <h1>Pause, recharge, get back to flow.</h1>
         <p>
           Book a quiet sleep pod, catch a nap, and let a teammate wake you when your
           time is up. Everything is fair, scheduled, and on time.
@@ -29,51 +29,16 @@ export default function Home() {
       <div className="section-title">Choose an action</div>
       <div className="grid grid-2">
         <Link to="/nap" className="card action-card">
-          <div className="action-icon violet">🌙</div>
-          <h2>Request a sleep pod</h2>
-          <p>
-            See which of the {pods.length} pods are occupied or vacant, then reserve a block of
-            time for a nap — just like booking a room on a calendar.
-          </p>
+          <div className="action-icon clay">🌙</div>
+          <h2>I want to sleep</h2>
           <button className="btn btn-primary">Book a nap →</button>
         </Link>
 
         <Link to="/wake" className="card action-card">
-          <div className="action-icon coral">⏰</div>
-          <h2>Volunteer to wake others</h2>
-          <p>
-            Sign up as a wake-up buddy. One volunteer is randomly chosen each session to wake
-            teammates whose nap time is up — and get notified if they exit on their own.
-          </p>
-          <button className="btn btn-coral">Wake a teammate →</button>
+          <div className="action-icon moss">⏰</div>
+          <h2>I can wake someone</h2>
+          <button className="btn btn-clay">Wake a teammate →</button>
         </Link>
-      </div>
-
-      <div className="section-title">How it works</div>
-      <div className="grid grid-3">
-        <div className="card">
-          <div className="action-icon" style={{ background: 'rgba(79,179,217,0.16)' }}>1</div>
-          <h3>Book a pod</h3>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            Pick a free slot on a pod's calendar. The pod is marked occupied for your window.
-          </p>
-        </div>
-        <div className="card">
-          <div className="action-icon" style={{ background: 'rgba(244,195,106,0.16)' }}>2</div>
-          <h3>Nap & time-up</h3>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            When your planned time ends, your pod goes into “time up.” A buddy is notified to come
-            wake you.
-          </p>
-        </div>
-        <div className="card">
-          <div className="action-icon" style={{ background: 'rgba(87,213,166,0.16)' }}>3</div>
-          <h3>Wake or exit</h3>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            You can tap <strong>Exit</strong> to get up on your own — then no one needs to come wake
-            you.
-          </p>
-        </div>
       </div>
 
       <div className="section-title">Live status</div>
@@ -95,7 +60,7 @@ export default function Home() {
       </div>
 
       {currentUser && (
-        <div className="banner blue mt">
+        <div className="banner sage mt">
           <span className="icon">👋</span>
           <p>
             You are browsing as <strong>{currentUser.name}</strong>. Use the switcher in the top bar

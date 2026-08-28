@@ -8,6 +8,7 @@ import {
   signupWaker,
   resignWaker,
   assignWaker,
+  declineWakerAssignment,
   wakeUser,
   exitSleep,
   markNotificationsRead,
@@ -77,6 +78,15 @@ app.post('/api/wakers/assign', (req, res) => {
   }
 });
 
+// The volunteer on duty turns the offer down; the duty is handed to someone else.
+app.post('/api/wakers/decline', (req, res) => {
+  try {
+    ok(res, declineWakerAssignment(req.body.userId));
+  } catch (e) {
+    fail(res, e);
+  }
+});
+
 app.post('/api/reservations/:id/wake', (req, res) => {
   try {
     ok(res, wakeUser(req.params.id, req.body.userId));
@@ -111,5 +121,5 @@ app.get(/^\/(?!api).*/, (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Recharge Lounge server listening on http://0.0.0.0:${PORT}`);
+  console.log(`Arena Pause server listening on http://0.0.0.0:${PORT}`);
 });
