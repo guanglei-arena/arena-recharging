@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../App.jsx';
 import { api } from '../api.js';
 import {
@@ -316,9 +317,14 @@ export default function Nap() {
                 : `Scheduled to end ${minutesFromNow(myRes.endMs)} · Pod ${podName(state, myRes.podId)}`}
             </span>
           </p>
-          <button className="btn btn-coral" onClick={handleExit}>
-            Exit nap
-          </button>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Link to="/sleep" className="btn btn-primary btn-sm">
+              😴 Sleep Screen
+            </Link>
+            <button className="btn btn-coral btn-sm" onClick={handleExit}>
+              Exit nap
+            </button>
+          </div>
         </div>
       )}
 

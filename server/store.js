@@ -1,4 +1,4 @@
-// In-memory data store for the Recharge Lounge.
+// In-memory data store for Arena Pause.
 // State is seeded with demo data and mutated via the functions below.
 // Repo is intentionally in-memory so the demo always starts fresh and lively.
 
@@ -17,51 +17,50 @@ function at(offsetMs) {
 // ---- Initial demo data -----------------------------------------------------
 
 const users = [
-  { id: 'u-alex', name: 'Alex Chen' },
-  { id: 'u-bri', name: 'Bri Patel' },
-  { id: 'u-carlos', name: 'Carlos Reyes' },
-  { id: 'u-dana', name: 'Dana Kim' },
-  { id: 'u-emma', name: 'Emma Wilson' },
+  { id: 'u-weilin', name: 'Wei-lin' },
+  { id: 'u-anastasios', name: 'anastasios' },
+  { id: 'u-guanglei', name: 'Guanglei' },
+  { id: 'u-tony', name: 'Tony' },
 ];
 
 const pods = [
-  { id: 'pod-1', name: 'Pod A', location: 'Cabin 1', color: '#7c6ff0', notes: '' },
-  { id: 'pod-2', name: 'Pod B', location: 'Cabin 1', color: '#4fb3d9', notes: '' },
-  { id: 'pod-3', name: 'Pod C', location: 'Cabin 2', color: '#f0917c', notes: '' },
+  { id: 'pod-1', name: 'Pod A', location: 'Cabin 1', color: '#c45b3a', notes: '' },
+  { id: 'pod-2', name: 'Pod B', location: 'Cabin 1', color: '#4d7c57', notes: '' },
+  { id: 'pod-3', name: 'Pod C', location: 'Cabin 2', color: '#b87728', notes: '' },
 ];
 
 // Reservation status lifecycle:
 //   'scheduled' -> 'active' (start reached) -> 'timeup' (end passed, still in pod)
 //   'timeup' -> 'woke' (waker wakes)  OR  'exited' (sleeper leaves on their own)
 const reservations = [
-  // An active napper whose time is already up -> should show in the "needs waking" list.
+  // An active napper currently sleeping (Wei-lin) -> can click "I am sleeping" button to enter Sleep Screen.
   {
-    id: 'res-overdue',
+    id: 'res-active-weilin',
     podId: 'pod-1',
-    userId: 'u-alex',
-    name: 'Alex Chen',
-    start: at(-50 * MIN),
-    end: at(-5 * MIN),
-    note: 'Recovering from a late night',
-    status: 'timeup',
-  },
-  // An active napper who is still within time, so they are NOT yet due to be woken.
-  {
-    id: 'res-active-bri',
-    podId: 'pod-2',
-    userId: 'u-bri',
-    name: 'Bri Patel',
+    userId: 'u-weilin',
+    name: 'Wei-lin',
     start: at(-20 * MIN),
-    end: at(30 * MIN),
-    note: 'Post-lunch recharge',
+    end: at(25 * MIN),
+    note: 'Afternoon power recharge',
     status: 'active',
   },
-  // An upcoming scheduled booking.
+  // An active napper whose time is already up (anastasios) -> should show in the "needs waking" list.
   {
-    id: 'res-upcoming',
+    id: 'res-overdue-anastasios',
+    podId: 'pod-2',
+    userId: 'u-anastasios',
+    name: 'anastasios',
+    start: at(-50 * MIN),
+    end: at(-5 * MIN),
+    note: 'Late night recovery',
+    status: 'timeup',
+  },
+  // An upcoming scheduled booking (Tony).
+  {
+    id: 'res-upcoming-tony',
     podId: 'pod-3',
-    userId: 'u-carlos',
-    name: 'Carlos Reyes',
+    userId: 'u-tony',
+    name: 'Tony',
     start: at(2 * HOUR),
     end: at(2 * HOUR + 45 * MIN),
     note: 'Focus block reset',
@@ -69,16 +68,16 @@ const reservations = [
   },
 ];
 
-// Users who volunteered to be wake-up duty.
-const wakerSignups = ['u-dana', 'u-emma'];
+// Users who volunteered for wake-up duty.
+const wakerSignups = ['u-guanglei', 'u-tony', 'u-anastasios'];
 
-// The randomly-chosen waker for this session (chosen from the signup pool).
-let assignedWakerId = 'u-dana';
+// The randomly-chosen waker for this session (Guanglei).
+let assignedWakerId = 'u-guanglei';
 
 const notifications = [
   {
     id: uid('notif'),
-    userId: 'u-dana',
+    userId: 'u-guanglei',
     type: 'wake-duty',
     title: 'Wake-up duty assigned',
     message: 'You were randomly chosen to help wake teammates whose nap time is up.',
@@ -87,10 +86,10 @@ const notifications = [
   },
   {
     id: uid('notif'),
-    userId: 'u-dana',
+    userId: 'u-guanglei',
     type: 'wake-needed',
     title: 'Someone needs waking',
-    message: 'Alex Chen\'s nap time is up in Pod A (Cabin 1). Please go wake them.',
+    message: "anastasios's nap time is up in Pod B (Cabin 1). Please go wake them.",
     createdAt: at(-3 * MIN),
     read: false,
   },
@@ -144,7 +143,7 @@ function getState() {
     pods: podWithStatus(),
     reservations: reservations.map(publicReservation),
     users,
-    wakerSignups: wakerSignups.map((id) => users.find((u) => u.id === id)?.name),
+    wakerSignups: wakerSignups.map((id) => users.find((u) => u.id === id)?.name).filter(Boolean),
     assignedWaker: users.find((u) => u.id === assignedWakerId) || null,
     wakeList: getWakeList(),
     notifications: [...notifications].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
@@ -201,6 +200,9 @@ function signupWaker(userId) {
 function resignWaker(userId) {
   const i = wakerSignups.indexOf(userId);
   if (i >= 0) wakerSignups.splice(i, 1);
+  if (assignedWakerId === userId) {
+    assignedWakerId = null;
+  }
 }
 
 // Randomly choose one signed-up waker to be on duty.
@@ -224,6 +226,55 @@ function assignWaker() {
   return user;
 }
 
+// Rejection by an assigned volunteer (e.g. they are in a meeting), automatically reassigns to another volunteer
+function rejectWakerDuty(userId) {
+  const rejectingUser = users.find((u) => u.id === userId);
+  const rejectingName = rejectingUser ? rejectingUser.name : 'Assigned volunteer';
+
+  // Find alternative volunteers in the pool
+  const candidates = wakerSignups.filter((id) => id !== userId);
+
+  let newAssignedUser = null;
+  if (candidates.length > 0) {
+    const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    assignedWakerId = pick;
+    newAssignedUser = users.find((u) => u.id === pick) || null;
+
+    notifications.unshift({
+      id: uid('notif'),
+      userId: pick,
+      type: 'wake-duty',
+      title: 'Wake-up duty reassigned to you',
+      message: `${newAssignedUser?.name}, ${rejectingName} had a conflict (e.g. in a meeting). You were automatically assigned to wake-up duty.`,
+      createdAt: new Date().toISOString(),
+      read: false,
+    });
+  } else {
+    assignedWakerId = null;
+  }
+
+  // Confirmation notification for the rejecting user
+  if (userId) {
+    notifications.unshift({
+      id: uid('notif'),
+      userId,
+      type: 'info',
+      title: 'Wake-up duty declined',
+      message: newAssignedUser
+        ? `You declined wake-up duty due to a conflict. Automatically reassigned to ${newAssignedUser.name}.`
+        : 'You declined wake-up duty. There are no other volunteers currently in the pool.',
+      createdAt: new Date().toISOString(),
+      read: false,
+    });
+  }
+
+  return {
+    ok: true,
+    rejectedBy: rejectingName,
+    assignedWaker: newAssignedUser,
+  };
+}
+
 // Waker marks a time-up sleeper as woken.
 function wakeUser(reservationId, byUserId) {
   const r = reservations.find((x) => x.id === reservationId);
@@ -235,7 +286,7 @@ function wakeUser(reservationId, byUserId) {
     userId: r.userId,
     type: 'awake',
     title: 'Time to get up!',
-    message: `${byName} came to wake you. Your nap time in Pod ${podName(r.podId)} is up.`,
+    message: `${byName} came to wake you. Your nap time in ${podName(r.podId)} is up.`,
     createdAt: new Date().toISOString(),
     read: false,
   });
@@ -248,15 +299,17 @@ function exitSleep(reservationId, userId) {
   if (!r) throw new Error('Reservation not found');
   if (r.userId !== userId) throw new Error('Only the sleeper can exit their own nap');
   r.status = 'exited';
-  notifications.unshift({
-    id: uid('notif'),
-    userId: assignedWakerId,
-    type: 'wake-duty',
-    title: 'Nap exited on its own',
-    message: `${r.name} already got up on their own. No need to wake them.`,
-    createdAt: new Date().toISOString(),
-    read: false,
-  });
+  if (assignedWakerId) {
+    notifications.unshift({
+      id: uid('notif'),
+      userId: assignedWakerId,
+      type: 'wake-duty',
+      title: 'Nap exited on its own',
+      message: `${r.name} already got up on their own. No need to wake them.`,
+      createdAt: new Date().toISOString(),
+      read: false,
+    });
+  }
   return publicReservation(r);
 }
 
@@ -277,6 +330,7 @@ export {
   signupWaker,
   resignWaker,
   assignWaker,
+  rejectWakerDuty,
   wakeUser,
   exitSleep,
   markNotificationsRead,

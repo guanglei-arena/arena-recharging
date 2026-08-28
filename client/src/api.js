@@ -22,6 +22,8 @@ export const api = {
   resignWaker: (userId) =>
     request('/wakers/resign', { method: 'POST', body: JSON.stringify({ userId }) }),
   assignWaker: () => request('/wakers/assign', { method: 'POST' }),
+  rejectWakerDuty: (userId) =>
+    request('/wakers/reject', { method: 'POST', body: JSON.stringify({ userId }) }),
   wakeUser: (id, userId) =>
     request(`/reservations/${id}/wake`, { method: 'POST', body: JSON.stringify({ userId }) }),
   exitSleep: (id, userId) =>

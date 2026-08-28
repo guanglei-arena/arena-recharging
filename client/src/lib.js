@@ -1,10 +1,10 @@
 const PALETTE = [
-  ['#7c6ff0', '#4fb3d9'],
-  ['#f0917c', '#ef5a44'],
-  ['#57d5a6', '#2bb07e'],
-  ['#f4c36a', '#ef9f3c'],
-  ['#b9a8ff', '#7c6ff0'],
-  ['#ff8fb2', '#f05a8c'],
+  ['#c45b3a', '#dd7a5b'], // Terracotta
+  ['#4d7c57', '#6f9d78'], // Sage Green
+  ['#b87728', '#d69649'], // Warm Ochre
+  ['#507684', '#749aa7'], // River Slate
+  ['#7d5c48', '#a4806a'], // Warm Clay / Bark
+  ['#8a6552', '#b38d77'], // Soft Sandstone
 ];
 
 export function gradientFor(name = '') {

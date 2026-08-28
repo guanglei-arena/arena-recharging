@@ -1,71 +1,53 @@
-# 🌙 Recharge Lounge — Sleep Pod Recharging
+# 🌿 Arena Pause — Sleep Pod Recharging Lounge
 
-A tiny full-stack web app for a team recharge lounge. Reserve a sleep pod for a
-nap, volunteer as a wake-up buddy, and let one randomly-chosen volunteer come
-wake anyone whose nap time is up.
+A mindful full-stack web application for internal team recharging. Reserve an organic sleep pod for a
+restorative nap, volunteer as a wake-up buddy, and let a randomly assigned volunteer wake teammates
+whose nap time is up.
 
 ## Features
 
-| Requirement | Where |
-|---|---|
-| **Home** page with two actions — request a nap, or volunteer to wake others | `/` |
-| **Pods list** (demo with 3 pods) showing **occupied / vacant** status | `/nap` |
-| **Schedule blocks of time** on each pod's calendar (like Google Calendar) | `/nap` |
-| **Randomly choose** one signed-up volunteer to be the waker | `/wake` |
-| Waker can **wake** people whose planned time is up | `/wake` |
-| Napper has an **Exit** button to leave the schedule (so no one is sent to wake them) | `/nap` |
-| The designated waker is **notified** to go wake / or that they self-exited | bell 🔔 + `/wake` |
+| Feature | Where | Description |
+|---|---|---|
+| **Organic Earth Theme** | Everywhere | Calming, natural terracotta, sage green, warm ochre, and warm stone/linen aesthetics |
+| **Home Page** | `/` | Clean action buttons (name and icon only) plus live pod availability status |
+| **How It Works Tab** | `/how-it-works` | Dedicated guide detailing the complete flow and pause principles |
+| **Pods List & Calendar** | `/nap` | 3 pods (Pod A, Pod B, Pod C) with live vacant/occupied statuses & timeline booking |
+| **Dedicated Sleep Screen** | `/sleep` | Tranquil, distraction-free screen accessible to scheduled sleepers with "I am awake" and "Exit" buttons |
+| **Volunteer Pool & Meeting Decline** | `/wake` | Randomly assigned wakers can decline duty (e.g. if in a meeting), automatically reassigning duty to another volunteer |
+| **Waking Alert System** | `/wake` & 🔔 | Assigned waker wakes time-up teammates, or sleeper self-exits |
+| **Demo Users** | Top Bar | Switch between Wei-lin, anastasios, Guanglei, and Tony |
 
-## How it works
+## Demo Users
 
-1. **Book a pod** — pick a time block on a pod's calendar. The pod shows
-   **occupied** during any booked window and **vacant** otherwise.
-2. **Nap** — when your planned end time passes, you go into **"time up"**.
-3. **Who wakes you?** — Anyone can volunteer to be a wake-up buddy. One
-   volunteer is randomly chosen each session to be on duty.
-4. **Wake or self-exit** — the on-duty waker sees the "needs waking" list,
-   taps **Wake up**, and you're notified. If you'd rather get up on your own,
-   tap **Exit** on your nap page — then the waker is told not to come get you.
+- **Wei-lin**: Currently sleeping in Pod A (power recharge). Use to test the "I am sleeping" button on the Home page and dedicated `/sleep` mode!
+- **anastasios**: Currently has a nap in Pod B that reached "time up" to test wake alerts.
+- **Guanglei**: Assigned wake-up volunteer on duty. Use to test waking anastasios, or click "Decline offer (in a meeting)" to test auto-reassignment!
+- **Tony**: Scheduled upcoming nap in Pod C and member of the volunteer pool.
 
-## Tech
+## Tech Stack
 
-- **Frontend:** React 18 + React Router + Vite (plain CSS, no UI kit)
-- **Backend:** Node + Express, in-memory data store (resets on restart, seeded
-  with demo data so it always looks alive)
-- **Realtime-ish:** the UI polls the API every few seconds so statuses
-  (time-up, pod occupancy) stay live without any backend infra.
+- **Frontend:** React 18 + React Router + Vite (Organic earth-themed CSS)
+- **Backend:** Node.js + Express, in-memory store seeded with live demo data
+- **Realtime State:** UI polling every few seconds keeping pod occupancy, time-up alerts, and volunteer assignments live
 
-## Run it
+## Running the App
 
 ```bash
 npm install
 npm run build   # builds the client into client/dist
-npm start       # serves the app + API on http://localhost:3001
+npm start       # serves the app + API on http://0.0.0.0:3001
 ```
 
-Or for active development (separate dev server + API proxy):
-
-```bash
-npm run dev            # API on :3001
-npx vite --config client/vite.config.js   # client on :5173 (proxies /api to :3001)
-```
-
-## API
+## API Endpoints
 
 ```
 GET  /api/state                        full app state
-POST /api/reservations                 book a pod  {podId,userId,start,end,note}
-POST /api/wakers/signup                {userId}
-POST /api/wakers/resign                {userId}
-POST /api/wakers/assign                pick a random on-duty waker
-POST /api/reservations/:id/wake        {userId}  (assignee wakes the napper)
-POST /api/reservations/:id/exit        {userId}  (napper leaves on their own)
-POST /api/notifications/read           {userId}
+POST /api/reservations                 book a pod {podId, userId, start, end, note}
+POST /api/wakers/signup                volunteer for wake-up pool {userId}
+POST /api/wakers/resign                remove from wake-up pool {userId}
+POST /api/wakers/assign                randomly assign an on-duty waker
+POST /api/wakers/reject                decline duty offer & auto-reassign {userId}
+POST /api/reservations/:id/wake        mark time-up napper as woken {userId}
+POST /api/reservations/:id/exit        sleeper self-exits / marks awake {userId}
+POST /api/notifications/read           mark notifications as read {userId}
 ```
-
-## Notes
-
-- Use the **user switcher** in the top bar to act as different teammates
-  (the napper, the waker, etc.) — this is how you demo the full loop.
-- Data is in-memory and resets on restart; the seed data already includes a
-  **time-up** napper (Alex Chen) so you can try the waking flow immediately.

@@ -1,7 +1,7 @@
 {
-  "name": "arena-recharging",
+  "name": "arena-pause",
   "version": "1.0.0",
-  "description": "Sleep pod recharging lounge - book a nap pod, volunteer as a waker, and get woken when your time is up.",
+  "description": "Arena Pause sleep pod recharging lounge - book a nap pod, volunteer as a waker, and get woken when your time is up.",
   "type": "module",
   "main": "server/index.js",
   "scripts": {

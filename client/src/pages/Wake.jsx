@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../App.jsx';
 import { api } from '../api.js';
-import { formatTime, gradientFor, initials, minutesFromNow } from '../lib.js';
+import { gradientFor, initials, minutesFromNow } from '../lib.js';
 
 export default function Wake() {
   const { state, currentUser, setCurrentUser, refresh, notify } = useApp();
@@ -51,7 +51,35 @@ export default function Wake() {
     }
   }
 
-  async function handleWake(resId, userId) {
+  // Reject offer (e.g. volunteer is in a meeting during wake up time) -> auto-reassigns to another volunteer
+  async function handleRejectOffer(wakerId) {
+    setBusy(true);
+    setNotice(null);
+    try {
+      const result = await api.rejectWakerDuty(wakerId);
+      await refresh();
+      notify();
+      if (result.assignedWaker) {
+        setNotice({
+          kind: 'green',
+          icon: '🔄',
+          text: `Offer declined. Wake-up duty was automatically reassigned to ${result.assignedWaker.name}!`,
+        });
+      } else {
+        setNotice({
+          kind: 'amber',
+          icon: 'ℹ️',
+          text: 'Offer declined. There are no other volunteers currently in the pool.',
+        });
+      }
+    } catch (err) {
+      setNotice({ kind: 'amber', icon: '⚠️', text: err.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleWake(resId) {
     if (!currentUser) return;
     setNotice(null);
     try {
@@ -67,11 +95,10 @@ export default function Wake() {
   return (
     <div>
       <div className="hero" style={{ paddingTop: 24 }}>
-        <h1>Volunteer to wake teammates</h1>
+        <h1>Volunteer to Wake Teammates</h1>
         <p>
-          Sign up to be a wake-up buddy. One volunteer is <strong>randomly chosen</strong> each
-          session to wake teammates whose nap time is up — and is notified if they exit on their
-          own.
+          Sign up to be a wake-up buddy. One volunteer is <strong>randomly chosen</strong> to wake
+          teammates whose nap time is up. If you have a meeting, you can decline to automatically reassign.
         </p>
       </div>
 
@@ -101,20 +128,65 @@ export default function Wake() {
           </div>
           <div className="mt">
             {assignedWaker ? (
-              <div className="row-item">
-                <span
-                  className="avatar"
-                  style={{
-                    background: `linear-gradient(140deg, ${gradientFor(assignedWaker.name)[0]}, ${gradientFor(assignedWaker.name)[1]})`,
-                  }}
-                >
-                  {initials(assignedWaker.name)}
-                </span>
-                <div className="row-main">
-                  <strong>{assignedWaker.name} <span className="tag">on duty</span></strong>
-                  <span className="sub">
-                    Randomly chosen from {signups.length} volunteer{signups.length === 1 ? '' : 's'}
+              <div>
+                <div className="row-item">
+                  <span
+                    className="avatar"
+                    style={{
+                      background: `linear-gradient(140deg, ${gradientFor(assignedWaker.name)[0]}, ${gradientFor(assignedWaker.name)[1]})`,
+                    }}
+                  >
+                    {initials(assignedWaker.name)}
                   </span>
+                  <div className="row-main">
+                    <strong>
+                      {assignedWaker.name} <span className="tag">on duty</span>
+                    </strong>
+                    <span className="sub">
+                      Selected from {signups.length} volunteer{signups.length === 1 ? '' : 's'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Reject the offer (conflict / in a meeting) */}
+                <div className="conflict-box mt">
+                  {isAssigned ? (
+                    <div>
+                      <div className="conflict-text">
+                        🗓️ <strong>In a meeting during wake time?</strong> You can decline the offer, and Arena Pause will automatically assign duty to another volunteer.
+                      </div>
+                      <button
+                        className="btn btn-coral"
+                        style={{ width: '100%', marginTop: 8 }}
+                        onClick={() => handleRejectOffer(assignedWaker.id)}
+                        disabled={busy}
+                      >
+                        {busy ? <span className="spin" /> : '🚫 In a meeting — Decline offer & reassign'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="conflict-text">
+                        🗓️ <strong>Scheduling conflict?</strong> If {assignedWaker.name} is in a meeting, decline below to automatically reassign:
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                        <button
+                          className="btn btn-coral btn-sm"
+                          onClick={() => handleRejectOffer(assignedWaker.id)}
+                          disabled={busy}
+                          title={`Decline and auto-reassign to another volunteer`}
+                        >
+                          {busy ? <span className="spin" /> : `🚫 Decline for ${assignedWaker.name} (in meeting)`}
+                        </button>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => setCurrentUser(assignedWaker.id)}
+                        >
+                          Switch to {assignedWaker.name}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
@@ -214,7 +286,7 @@ export default function Wake() {
                 <div className="row-main">
                   <strong>
                     {r.name}
-                    <span className="tag danger" style={{ background: 'rgba(255,122,138,0.16)', color: 'var(--danger)' }}>
+                    <span className="tag danger" style={{ background: 'rgba(196,91,58,0.14)', color: 'var(--coral)' }}>
                       time up
                     </span>
                   </strong>
@@ -227,7 +299,7 @@ export default function Wake() {
                   {canWake ? (
                     <button
                       className="btn btn-green btn-sm"
-                      onClick={() => handleWake(r.id, currentUser.id)}
+                      onClick={() => handleWake(r.id)}
                     >
                       🌅 Wake up
                     </button>
@@ -259,32 +331,6 @@ export default function Wake() {
           })}
         </div>
       )}
-
-      <div className="section-title">How waking works</div>
-      <div className="grid grid-3">
-        <div className="card">
-          <div className="action-icon" style={{ background: 'rgba(139,124,246,0.16)' }}>1</div>
-          <h3>Time runs out</h3>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            When a napper's planned end time passes, they appear here as “time up.”
-          </p>
-        </div>
-        <div className="card">
-          <div className="action-icon" style={{ background: 'rgba(244,195,106,0.16)' }}>2</div>
-          <h3>Buddy is notified</h3>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            The assigned waker gets a notification and taps <strong>Wake up</strong> to go get them.
-          </p>
-        </div>
-        <div className="card">
-          <div className="action-icon" style={{ background: 'rgba(87,213,166,0.16)' }}>3</div>
-          <h3>Or they self-exit</h3>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            If the napper taps <strong>Exit</strong> on their nap page, they're marked exited and no
-            one is sent to wake them.
-          </p>
-        </div>
-      </div>
     </div>
   );
 }
