@@ -1,19 +1,21 @@
-# 🌙 Recharge Lounge — Sleep Pod Recharging
+# 🌿 Arena Pause — Sleep Pod Pause
 
-A tiny full-stack web app for a team recharge lounge. Reserve a sleep pod for a
-nap, volunteer as a wake-up buddy, and let one randomly-chosen volunteer come
-wake anyone whose nap time is up.
+A tiny full-stack web app for a team room called Arena Pause. Reserve a sleep
+pod for a nap, volunteer as a wake-up buddy, and let one randomly-chosen
+volunteer come wake anyone whose nap time is up.
 
 ## Features
 
 | Requirement | Where |
 |---|---|
 | **Home** page with two actions — request a nap, or volunteer to wake others | `/` |
+| Separate **How it works** tab | `/how` |
 | **Pods list** (demo with 3 pods) showing **occupied / vacant** status | `/nap` |
 | **Schedule blocks of time** on each pod's calendar (like Google Calendar) | `/nap` |
 | **Randomly choose** one signed-up volunteer to be the waker | `/wake` |
+| Waker can **reject** their assignment and automatically hand it to a new volunteer | `/wake` |
 | Waker can **wake** people whose planned time is up | `/wake` |
-| Napper has an **Exit** button to leave the schedule (so no one is sent to wake them) | `/nap` |
+| Scheduled napper can enter a minimal **sleeping room** and tap **I'm awake** / **Exit** | `/nap` + `/sleeping` |
 | The designated waker is **notified** to go wake / or that they self-exited | bell 🔔 + `/wake` |
 
 ## How it works
@@ -58,6 +60,7 @@ POST /api/reservations                 book a pod  {podId,userId,start,end,note}
 POST /api/wakers/signup                {userId}
 POST /api/wakers/resign                {userId}
 POST /api/wakers/assign                pick a random on-duty waker
+POST /api/wakers/reject                {userId}  (assigned waker declines, auto-reassign)
 POST /api/reservations/:id/wake        {userId}  (assignee wakes the napper)
 POST /api/reservations/:id/exit        {userId}  (napper leaves on their own)
 POST /api/notifications/read           {userId}
@@ -68,4 +71,4 @@ POST /api/notifications/read           {userId}
 - Use the **user switcher** in the top bar to act as different teammates
   (the napper, the waker, etc.) — this is how you demo the full loop.
 - Data is in-memory and resets on restart; the seed data already includes a
-  **time-up** napper (Alex Chen) so you can try the waking flow immediately.
+  **time-up** napper (Wei-lin) so you can try the waking flow immediately.
