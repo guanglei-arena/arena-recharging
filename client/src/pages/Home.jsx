@@ -63,7 +63,6 @@ export default function Home() {
             <div className="pod-head">
               <div>
                 <h3 style={{ margin: 0 }}>{pod.name}</h3>
-                <div className="loc">{pod.location}</div>
               </div>
               <span className={`badge ${pod.status}`}>
                 <span className="dot" />
