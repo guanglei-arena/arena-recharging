@@ -876,18 +876,6 @@ textarea:focus {
   font-size: 13px;
 }
 
-.pill-sleeping {
-  background: var(--terracotta-light);
-  border-color: rgba(196, 91, 58, 0.3);
-  color: var(--terracotta-dark);
-  animation: pulse-soft 2s infinite ease-in-out;
-}
-
-@keyframes pulse-soft {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.75; }
-}
-
 /* Footer */
 .footer {
   margin-top: 60px;
