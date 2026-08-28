@@ -11,18 +11,18 @@ whose nap time is up.
 | **Organic Earth Theme** | Everywhere | Calming, natural terracotta, sage green, warm ochre, and warm stone/linen aesthetics |
 | **Home Page** | `/` | Clean action buttons (name and icon only) plus live pod availability status |
 | **How It Works Tab** | `/how-it-works` | Dedicated guide detailing the complete flow and pause principles |
-| **Pods List & Calendar** | `/nap` | 3 pods (Pod A, Pod B, Pod C) with live vacant/occupied statuses & timeline booking |
-| **Dedicated Sleep Screen** | `/sleep` | Tranquil, distraction-free screen accessible to scheduled sleepers with "I am awake" and "Exit" buttons |
+| **Pods List & Calendar** | `/nap` | 3 pods (Monterey, Big Sur, Half Moon Bay) with live vacant/occupied statuses & timeline booking |
+| **Dedicated Sleep Screen** | `/sleep` | Tranquil, distraction-free screen accessible to scheduled sleepers with an "I am awake" button |
 | **Volunteer Pool & Meeting Decline** | `/wake` | Randomly assigned wakers can decline duty (e.g. if in a meeting), automatically reassigning duty to another volunteer |
 | **Waking Alert System** | `/wake` & 🔔 | Assigned waker wakes time-up teammates, or sleeper self-exits |
 | **Demo Users** | Top Bar | Switch between Wei-lin, anastasios, Guanglei, and Tony |
 
 ## Demo Users
 
-- **Wei-lin**: Currently sleeping in Pod A (power recharge). Use to test the "I am sleeping" button on the Home page and dedicated `/sleep` mode!
-- **anastasios**: Currently has a nap in Pod B that reached "time up" to test wake alerts.
+- **Wei-lin**: Currently sleeping in Monterey (power recharge). Use to test the "I am sleeping" button on the Home page and dedicated `/sleep` mode!
+- **anastasios**: Currently has a nap in Big Sur that reached "time up" to test wake alerts.
 - **Guanglei**: Assigned wake-up volunteer on duty. Use to test waking anastasios, or click "Decline offer (in a meeting)" to test auto-reassignment!
-- **Tony**: Scheduled upcoming nap in Pod C and member of the volunteer pool.
+- **Tony**: Scheduled upcoming nap in Half Moon Bay and member of the volunteer pool.
 
 ## Tech Stack
 

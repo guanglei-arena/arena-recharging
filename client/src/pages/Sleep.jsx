@@ -21,7 +21,7 @@ export default function Sleep() {
     ? (state?.reservations || []).find((r) => ['active', 'timeup'].includes(r.status))
     : null;
 
-  async function handleAwakeOrExit() {
+  async function handleAwake() {
     if (!myRes || !currentUser) return;
     setBusy(true);
     setError(null);
@@ -117,21 +117,14 @@ export default function Sleep() {
 
         {error && <div className="sleep-error">{error}</div>}
 
-        {/* The user requested: "a page that only has an 'exit' or 'i am awake button'" */}
+        {/* A single, clear button to end the nap and return home */}
         <div className="sleep-actions">
           <button
             className="btn btn-awake"
-            onClick={handleAwakeOrExit}
+            onClick={handleAwake}
             disabled={busy}
           >
             {busy ? <span className="spin" /> : '🌅 I am awake'}
-          </button>
-          <button
-            className="btn btn-exit"
-            onClick={handleAwakeOrExit}
-            disabled={busy}
-          >
-            {busy ? <span className="spin" /> : 'Exit'}
           </button>
         </div>
       </div>
